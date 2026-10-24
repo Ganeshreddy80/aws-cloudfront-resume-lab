@@ -5,6 +5,12 @@ on:
     branches:
       - master
   workflow_dispatch:
+    inputs:
+      simulate_predeploy_failure:
+        description: "Lab test: fail before AWS deployment"
+        required: true
+        type: boolean
+        default: false
   
 permissions:
   contents: read
@@ -43,6 +49,12 @@ jobs:
         run: |
           test -s dist/index.html
           echo "Website build verified"
+
+      - name: Lab - simulate pre-deployment failure
+        if: ${{ inputs.simulate_predeploy_failure }}
+        run: |
+          echo "::error::Intentional lab failure before AWS deployment"
+          exit 1
 
       - name: Configure AWS credentials using OIDC
         uses: aws-actions/configure-aws-credentials@v6.3.0
